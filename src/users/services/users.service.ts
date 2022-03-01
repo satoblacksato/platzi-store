@@ -3,29 +3,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'pg';
+import * as bcrypt from 'bcrypt';
 
-import { User } from '../../database/entities/users/user.entity';
-import { UserRepository } from '../../database/entities/users/user.repository';
-import { Order } from '../../database/entities/users/order.entity';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 
 import { ProductsService } from './../../products/services/products.service';
 import { CustomersService } from './customers.service';
+import { User } from '../../database/entities/users/user.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     private productsService: ProductsService,
     private configService: ConfigService,
-    // @InjectRepository(User) private userRepo: Repository<User>,
-    private userRepo: UserRepository,
+    @Inject('PG') private clientPg: Client,
+    @InjectRepository(User) private userRepo: Repository<User>,
     private customersService: CustomersService,
   ) {}
 
   findAll() {
     const apiKey = this.configService.get('API_KEY');
     const dbName = this.configService.get('DATABASE_NAME');
-    console.log(apiKey, dbName);
     return this.userRepo.find({
       relations: ['customer'],
     });
@@ -39,8 +37,14 @@ export class UsersService {
     return user;
   }
 
+  findByEmail(email: string) {
+    return this.userRepo.findOne({ where: { email } });
+  }
+
   async create(data: CreateUserDto) {
     const newUser = this.userRepo.create(data);
+    const hashPassword = await bcrypt.hash(newUser.password, 10);
+    newUser.password = hashPassword;
     if (data.customerId) {
       const customer = await this.customersService.findOne(data.customerId);
       newUser.customer = customer;
@@ -65,5 +69,16 @@ export class UsersService {
       user,
       products: await this.productsService.findAll(),
     };
+  }
+
+  getTasks() {
+    return new Promise((resolve, reject) => {
+      this.clientPg.query('SELECT * FROM tasks', (err, res) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(res.rows);
+      });
+    });
   }
 }

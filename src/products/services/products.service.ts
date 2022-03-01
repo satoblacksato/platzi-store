@@ -8,9 +8,9 @@ import { Brand } from '../../database/entities/products/brand.entity';
 import { User } from '../../database/entities/users/user.entity';
 import {
   CreateProductDto,
-  UpdateProductDto,
   FilterProductsDto,
-} from './../dtos/products.dtos';
+  UpdateProductDto,
+} from '../dtos/products.dtos';
 
 @Injectable()
 export class ProductsService {
@@ -18,7 +18,6 @@ export class ProductsService {
     @InjectRepository(Product) private productRepo: Repository<Product>,
     @InjectRepository(Brand) private brandRepo: Repository<Brand>,
     @InjectRepository(Category) private categoryRepo: Repository<Category>,
-    @InjectRepository(User) private usersRepo: Repository<User>,
   ) {}
 
   findAll(params?: FilterProductsDto) {
@@ -42,8 +41,6 @@ export class ProductsService {
   }
 
   async findOne(id: number) {
-    const rta = await this.usersRepo.find();
-    console.log(rta);
     const product = await this.productRepo.findOne(id, {
       relations: ['brand', 'categories'],
     });

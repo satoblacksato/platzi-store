@@ -9,8 +9,8 @@ import {
 
 import { Exclude } from 'class-transformer';
 
-import { Product } from '../../products/entities/product.entity';
 import { Order } from './order.entity';
+import { Product } from '../products/product.entity';
 
 @Entity({ name: 'orders_items' })
 export class OrderItem {

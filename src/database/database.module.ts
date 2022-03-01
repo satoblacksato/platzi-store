@@ -11,7 +11,7 @@ import { Customer } from './entities/users/customer.entity';
 import { OrderItem } from './entities/users/order-item.entity';
 import { Order } from './entities/users/order.entity';
 import { UserRepository } from './entities/users/user.repository';
-import { UsersServiceA } from './providers/user.service';
+import { UsersService } from './providers/user.service';
 
 @Global()
 @Module({
@@ -42,7 +42,7 @@ import { UsersServiceA } from './providers/user.service';
       UserRepository,
     ]),
   ],
-  providers: [UsersServiceA],
+  providers: [UsersService],
   exports: [TypeOrmModule],
 })
 export class DatabaseModule {}
